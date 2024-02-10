@@ -1,0 +1,15 @@
+[package]
+name = "password_hashing"
+version = "0.1.0"
+authors = []
+edition = "2021"
+
+[lib]
+name = "password_hashing"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+rustler = "0.30.0"
+ring = "0.17.7"
+base64 = "0.13.0"
