@@ -4,6 +4,5 @@ defmodule Sorgenfri.PasswordHashingNIF do
   def hash_password(_password), do: error()
   def verify_password(_password, _password_hash, _salt), do: error()
 
-
   defp error, do: :erlang.nif_error(:nif_not_loaded)
 end
