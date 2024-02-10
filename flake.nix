@@ -55,6 +55,7 @@
           # system.
 
           devshells.default = {
+            devshell.name = pname;
             env = [
               {
                 name = "HTTP_PORT";
