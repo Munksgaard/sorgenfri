@@ -1,4 +1,4 @@
-defmodule Sorgenfri.Accounts.UserNotifier do
+defmodule Sorgenfri.Accounts.AccountNotifier do
   import Swoosh.Email
 
   alias Sorgenfri.Mailer
@@ -20,12 +20,12 @@ defmodule Sorgenfri.Accounts.UserNotifier do
   @doc """
   Deliver instructions to confirm account.
   """
-  def deliver_confirmation_instructions(user, url) do
-    deliver(user.email, "Confirmation instructions", """
+  def deliver_confirmation_instructions(account, url) do
+    deliver(account.email, "Confirmation instructions", """
 
     ==============================
 
-    Hi #{user.email},
+    Hi #{account.email},
 
     You can confirm your account by visiting the URL below:
 
@@ -38,14 +38,14 @@ defmodule Sorgenfri.Accounts.UserNotifier do
   end
 
   @doc """
-  Deliver instructions to reset a user password.
+  Deliver instructions to reset a account password.
   """
-  def deliver_reset_password_instructions(user, url) do
-    deliver(user.email, "Reset password instructions", """
+  def deliver_reset_password_instructions(account, url) do
+    deliver(account.email, "Reset password instructions", """
 
     ==============================
 
-    Hi #{user.email},
+    Hi #{account.email},
 
     You can reset your password by visiting the URL below:
 
@@ -58,14 +58,14 @@ defmodule Sorgenfri.Accounts.UserNotifier do
   end
 
   @doc """
-  Deliver instructions to update a user email.
+  Deliver instructions to update a account email.
   """
-  def deliver_update_email_instructions(user, url) do
-    deliver(user.email, "Update email instructions", """
+  def deliver_update_email_instructions(account, url) do
+    deliver(account.email, "Update email instructions", """
 
     ==============================
 
-    Hi #{user.email},
+    Hi #{account.email},
 
     You can change your email by visiting the URL below:
 

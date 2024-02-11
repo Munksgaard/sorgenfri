@@ -55,7 +55,7 @@ defmodule SorgenfriWeb.Router do
       live "/accounts/register", UserRegistrationLive, :new
       live "/accounts/log_in", UserLoginLive, :new
       live "/accounts/reset_password", UserForgotPasswordLive, :new
-      live "/accounts/reset_password/:token", UserResetPasswordLive, :edit
+      live "/accounts/reset_password/:token", AccountResetPasswordLive, :edit
     end
 
     post "/accounts/log_in", UserSessionController, :create

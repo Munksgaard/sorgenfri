@@ -9,9 +9,12 @@ defmodule Sorgenfri.AccountsFixtures do
 
   def valid_user_attributes(attrs \\ %{}) do
     Enum.into(attrs, %{
-      email: unique_user_email(),
-      password: valid_user_password()
-    })
+          name: "John McClane",
+          user: %{
+            email: unique_user_email(),
+            password: valid_user_password()
+          }
+              })
   end
 
   def user_fixture(attrs \\ %{}) do

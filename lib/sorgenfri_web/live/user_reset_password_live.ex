@@ -1,4 +1,4 @@
-defmodule SorgenfriWeb.UserResetPasswordLive do
+defmodule SorgenfriWeb.AccountResetPasswordLive do
   use SorgenfriWeb, :live_view
 
   alias Sorgenfri.Accounts
@@ -39,12 +39,12 @@ defmodule SorgenfriWeb.UserResetPasswordLive do
   end
 
   def mount(params, _session, socket) do
-    socket = assign_user_and_token(socket, params)
+    socket = assign_account_and_token(socket, params) |> dbg
 
     form_source =
       case socket.assigns do
-        %{user: user} ->
-          Accounts.change_user_password(user)
+        %{account: account} ->
+          Accounts.change_account_password(account |> dbg)
 
         _ ->
           %{}
@@ -53,10 +53,10 @@ defmodule SorgenfriWeb.UserResetPasswordLive do
     {:ok, assign_form(socket, form_source), temporary_assigns: [form: nil]}
   end
 
-  # Do not log in the user after reset password to avoid a
-  # leaked token giving the user access to the account.
-  def handle_event("reset_password", %{"user" => user_params}, socket) do
-    case Accounts.reset_user_password(socket.assigns.user, user_params) do
+  # Do not log in the account after reset password to avoid a
+  # leaked token giving the account access to the account.
+  def handle_event("reset_password", %{"account" => account_params}, socket) do
+    case Accounts.reset_account_password(socket.assigns.account, account_params) do
       {:ok, _} ->
         {:noreply,
          socket
@@ -68,14 +68,14 @@ defmodule SorgenfriWeb.UserResetPasswordLive do
     end
   end
 
-  def handle_event("validate", %{"user" => user_params}, socket) do
-    changeset = Accounts.change_user_password(socket.assigns.user, user_params)
+  def handle_event("validate", %{"account" => account_params}, socket) do
+    changeset = Accounts.change_account_password(socket.assigns.account, account_params)
     {:noreply, assign_form(socket, Map.put(changeset, :action, :validate))}
   end
 
-  defp assign_user_and_token(socket, %{"token" => token}) do
-    if user = Accounts.get_user_by_reset_password_token(token) do
-      assign(socket, user: user, token: token)
+  defp assign_account_and_token(socket, %{"token" => token}) do
+    if account = Accounts.get_account_by_reset_password_token(token) do
+      assign(socket, account: account, token: token)
     else
       socket
       |> put_flash(:error, "Reset password link is invalid or it has expired.")
@@ -84,6 +84,6 @@ defmodule SorgenfriWeb.UserResetPasswordLive do
   end
 
   defp assign_form(socket, %{} = source) do
-    assign(socket, :form, to_form(source, as: "user"))
+    assign(socket, :form, to_form(source, as: "account"))
   end
 end

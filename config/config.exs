@@ -10,6 +10,9 @@ import Config
 config :sorgenfri,
   ecto_repos: [Sorgenfri.Repo]
 
+# Configure the repo
+config :sorgenfri, Sorgenfri.Repo, migration_timestamps: [type: :timestamptz]
+
 # Configures the endpoint
 config :sorgenfri, SorgenfriWeb.Endpoint,
   url: [host: "localhost"],
@@ -37,7 +40,9 @@ config :esbuild,
     args:
       ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__),
-    env: %{"NODE_PATH" => System.get_env("MIX_ESBUILD_NODE_PATH") || Path.expand("../deps", __DIR__)}
+    env: %{
+      "NODE_PATH" => System.get_env("MIX_ESBUILD_NODE_PATH") || Path.expand("../deps", __DIR__)
+    }
   ]
 
 # Configure tailwind (the version is required)

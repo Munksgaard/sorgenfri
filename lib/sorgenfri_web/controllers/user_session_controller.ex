@@ -18,13 +18,15 @@ defmodule SorgenfriWeb.UserSessionController do
     create(conn, params, "Welcome back!")
   end
 
-  defp create(conn, %{"user" => user_params}, info) do
-    %{"email" => email, "password" => password} = user_params
+  defp create(conn, %{"user" => %{"account" => _} = user_params}, info), do: create(conn, user_params, info)
 
-    if user = Accounts.get_user_by_email_and_password(email, password) do
+  defp create(conn, %{"account" => account_params}, info) do
+    %{"email" => email, "password" => password} = account_params
+
+    if account = Accounts.get_account_by_email_and_password(email, password) do
       conn
       |> put_flash(:info, info)
-      |> UserAuth.log_in_user(user, user_params)
+      |> UserAuth.log_in_user(account, account_params)
     else
       # In order to prevent user enumeration attacks, don't disclose whether the email is registered.
       conn
