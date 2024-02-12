@@ -18,7 +18,8 @@ defmodule SorgenfriWeb.UserSessionController do
     create(conn, params, "Welcome back!")
   end
 
-  defp create(conn, %{"user" => %{"account" => _} = user_params}, info), do: create(conn, user_params, info)
+  defp create(conn, %{"user" => %{"account" => _} = user_params}, info),
+    do: create(conn, user_params, info)
 
   defp create(conn, %{"account" => account_params}, info) do
     %{"email" => email, "password" => password} = account_params

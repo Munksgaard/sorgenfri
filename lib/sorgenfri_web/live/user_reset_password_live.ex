@@ -39,12 +39,12 @@ defmodule SorgenfriWeb.AccountResetPasswordLive do
   end
 
   def mount(params, _session, socket) do
-    socket = assign_account_and_token(socket, params) |> dbg
+    socket = assign_account_and_token(socket, params)
 
     form_source =
       case socket.assigns do
         %{account: account} ->
-          Accounts.change_account_password(account |> dbg)
+          Accounts.change_account_password(account)
 
         _ ->
           %{}

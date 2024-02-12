@@ -111,7 +111,7 @@ defmodule Sorgenfri.Accounts.AccountToken do
     case Base.url_decode64(token, padding: false) do
       {:ok, decoded_token} ->
         hashed_token = :crypto.hash(@hash_algorithm, decoded_token)
-        days = days_for_context(context) |> dbg
+        days = days_for_context(context)
 
         query =
           from token in by_token_and_context_query(hashed_token, context),
@@ -163,7 +163,7 @@ defmodule Sorgenfri.Accounts.AccountToken do
   Returns the token struct for the given token value and context.
   """
   def by_token_and_context_query(token, context) do
-    from AccountToken, where: [token: ^dbg(token), context: ^dbg(context)]
+    from AccountToken, where: [token: ^token, context: ^context]
   end
 
   @doc """

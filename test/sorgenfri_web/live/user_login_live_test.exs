@@ -27,12 +27,12 @@ defmodule SorgenfriWeb.UserLoginLiveTest do
   describe "user login" do
     test "redirects if user login with valid credentials", %{conn: conn} do
       password = "123456789abcd"
-      user = user_fixture(%{password: password})
+      user = user_fixture(%{account: %{password: password, email: unique_user_email()}})
 
       {:ok, lv, _html} = live(conn, ~p"/accounts/log_in")
 
       form =
-        form(lv, "#login_form", user: %{email: user.email, password: password, remember_me: true})
+        form(lv, "#login_form", account: %{email: user.account.email, password: password, remember_me: true})
 
       conn = submit_form(form, conn)
 
@@ -46,7 +46,7 @@ defmodule SorgenfriWeb.UserLoginLiveTest do
 
       form =
         form(lv, "#login_form",
-          user: %{email: "test@email.com", password: "123456", remember_me: true}
+          account: %{email: "test@email.com", password: "123456", remember_me: true}
         )
 
       conn = submit_form(form, conn)

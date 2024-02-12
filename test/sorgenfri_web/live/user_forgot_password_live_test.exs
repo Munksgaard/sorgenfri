@@ -37,13 +37,13 @@ defmodule SorgenfriWeb.UserForgotPasswordLiveTest do
 
       {:ok, conn} =
         lv
-        |> form("#reset_password_form", user: %{"email" => user.email})
+        |> form("#reset_password_form", account: %{"email" => user.account.email})
         |> render_submit()
         |> follow_redirect(conn, "/")
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "If your email is in our system"
 
-      assert Repo.get_by!(Accounts.UserToken, user_id: user.id).context ==
+      assert Repo.get_by!(Accounts.AccountToken, account_id: user.account.id).context ==
                "reset_password"
     end
 
@@ -52,12 +52,12 @@ defmodule SorgenfriWeb.UserForgotPasswordLiveTest do
 
       {:ok, conn} =
         lv
-        |> form("#reset_password_form", user: %{"email" => "unknown@example.com"})
+        |> form("#reset_password_form", account: %{"email" => "unknown@example.com"})
         |> render_submit()
         |> follow_redirect(conn, "/")
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "If your email is in our system"
-      assert Repo.all(Accounts.UserToken) == []
+      assert Repo.all(Accounts.AccountToken) == []
     end
   end
 end

@@ -22,8 +22,8 @@ defmodule Sorgenfri.Accounts.User do
   def registration_changeset(user, attrs, opts \\ []) do
     user
     |> cast(attrs, [:name])
-    |> validate_required([:name])
     |> cast_assoc(:account, with: &Account.registration_changeset(&1, &2, opts))
+    |> validate_required([:name, :account])
     |> unique_constraint(:name)
   end
 

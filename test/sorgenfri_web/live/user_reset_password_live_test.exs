@@ -7,14 +7,14 @@ defmodule SorgenfriWeb.UserResetPasswordLiveTest do
   alias Sorgenfri.Accounts
 
   setup do
-    user = user_fixture()
+    account = user_fixture().account
 
     token =
-      extract_user_token(fn url ->
-        Accounts.deliver_user_reset_password_instructions(user, url)
+      extract_account_token(fn url ->
+        Accounts.deliver_account_reset_password_instructions(account, url)
       end)
 
-    %{token: token, user: user}
+    %{token: token, account: account}
   end
 
   describe "Reset password page" do
@@ -40,22 +40,22 @@ defmodule SorgenfriWeb.UserResetPasswordLiveTest do
         lv
         |> element("#reset_password_form")
         |> render_change(
-          user: %{"password" => "secret12", "password_confirmation" => "secret123456"}
+          account: %{"password" => "123", "password_confirmation" => "secret123456"}
         )
 
-      assert result =~ "should be at least 12 character"
+      assert result =~ "should be at least 4 character"
       assert result =~ "does not match password"
     end
   end
 
   describe "Reset Password" do
-    test "resets password once", %{conn: conn, token: token, user: user} do
+    test "resets password once", %{conn: conn, token: token, account: account} do
       {:ok, lv, _html} = live(conn, ~p"/accounts/reset_password/#{token}")
 
       {:ok, conn} =
         lv
         |> form("#reset_password_form",
-          user: %{
+          account: %{
             "password" => "new valid password",
             "password_confirmation" => "new valid password"
           }
@@ -65,7 +65,7 @@ defmodule SorgenfriWeb.UserResetPasswordLiveTest do
 
       refute get_session(conn, :user_token)
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Password reset successfully"
-      assert Accounts.get_user_by_email_and_password(user.email, "new valid password")
+      assert Accounts.get_account_by_email_and_password(account.email, "new valid password")
     end
 
     test "does not reset password on invalid data", %{conn: conn, token: token} do
@@ -74,15 +74,15 @@ defmodule SorgenfriWeb.UserResetPasswordLiveTest do
       result =
         lv
         |> form("#reset_password_form",
-          user: %{
-            "password" => "too short",
+          account: %{
+            "password" => "too",
             "password_confirmation" => "does not match"
           }
         )
         |> render_submit()
 
       assert result =~ "Reset Password"
-      assert result =~ "should be at least 12 character(s)"
+      assert result =~ "should be at least 4 character(s)"
       assert result =~ "does not match password"
     end
   end

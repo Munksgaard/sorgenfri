@@ -31,11 +31,16 @@ defmodule SorgenfriWeb.UserRegistrationLive do
           Oops, something went wrong! Please check the errors below.
         </.error>
 
-    <.input field={@form[:name]} type="text" label="Name" required />
+        <.input field={@form[:name]} type="text" label="Name" required />
         <.inputs_for :let={account} field={@form[:account]}>
           <.input field={account[:email]} type="email" label="Email" required />
           <.input field={account[:password]} type="password" label="Password" required />
-          <.input field={account[:password_confirmation]} type="password" label="Confirm Password" required />
+          <.input
+            field={account[:password_confirmation]}
+            type="password"
+            label="Confirm Password"
+            required
+          />
         </.inputs_for>
         <:actions>
           <.button phx-disable-with="Creating account..." class="w-full">Create an account</.button>
@@ -60,10 +65,10 @@ defmodule SorgenfriWeb.UserRegistrationLive do
     case Accounts.register_user(user_params) do
       {:ok, user} ->
         changeset = Accounts.change_user_registration(user)
-        {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset |> dbg)}
+        {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset |> dbg)}
+        {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset)}
     end
   end
 

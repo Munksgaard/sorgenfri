@@ -40,8 +40,9 @@ defmodule Sorgenfri.Accounts do
   """
   def get_account_by_email_and_password(email, password)
       when is_binary(email) and is_binary(password) do
-    account = Repo.get_by(Account, email: email)
-    if Account.valid_password?(account, password), do: account
+    if account = Repo.get_by(Account, email: email) do
+      if Account.valid_password?(account, password), do: account
+    end
   end
 
   @doc """
@@ -102,10 +103,6 @@ defmodule Sorgenfri.Accounts do
       %Ecto.Changeset{data: %User{}}
 
   """
-  def change_user_password(user, attrs \\ %{}) do
-    User.password_changeset(user, attrs, hash_password: false)
-  end
-
   def change_account_password(account, attrs \\ %{}) do
     Account.password_changeset(account, attrs, hash_password: false)
   end
@@ -180,7 +177,11 @@ defmodule Sorgenfri.Accounts do
       when is_function(reset_password_url_fun, 1) do
     {encoded_token, account_token} = AccountToken.build_email_token(account, "reset_password")
     Repo.insert!(account_token)
-    AccountNotifier.deliver_reset_password_instructions(account, reset_password_url_fun.(encoded_token))
+
+    AccountNotifier.deliver_reset_password_instructions(
+      account,
+      reset_password_url_fun.(encoded_token)
+    )
   end
 
   @doc """
