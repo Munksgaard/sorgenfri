@@ -46,10 +46,11 @@ defmodule SorgenfriWeb.UserSessionControllerTest do
         conn
         |> init_test_session(user_return_to: "/foo/bar")
         |> post(~p"/accounts/log_in", %{
-            "user" => %{
-                    "account" => %{
-            "email" => user.account.email,
-            "password" => valid_user_password()}
+          "user" => %{
+            "account" => %{
+              "email" => user.account.email,
+              "password" => valid_user_password()
+            }
           }
         })
 
@@ -64,8 +65,9 @@ defmodule SorgenfriWeb.UserSessionControllerTest do
           "_action" => "registered",
           "user" => %{
             "account" => %{
-            "email" => user.account.email,
-            "password" => valid_user_password()}
+              "email" => user.account.email,
+              "password" => valid_user_password()
+            }
           }
         })
 
@@ -80,8 +82,9 @@ defmodule SorgenfriWeb.UserSessionControllerTest do
           "_action" => "password_updated",
           "user" => %{
             "account" => %{
-            "email" => user.account.email,
-            "password" => valid_user_password()}
+              "email" => user.account.email,
+              "password" => valid_user_password()
+            }
           }
         })
 
@@ -92,7 +95,9 @@ defmodule SorgenfriWeb.UserSessionControllerTest do
     test "redirects to login page with invalid credentials", %{conn: conn} do
       conn =
         post(conn, ~p"/accounts/log_in", %{
-          "user" => %{"account" => %{"email" => "invalid@email.com", "password" => "invalid_password"}}
+          "user" => %{
+            "account" => %{"email" => "invalid@email.com", "password" => "invalid_password"}
+          }
         })
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Invalid email or password"

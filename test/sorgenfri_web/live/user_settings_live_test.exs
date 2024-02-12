@@ -39,7 +39,7 @@ defmodule SorgenfriWeb.UserSettingsLiveTest do
       form =
         form(lv, "#password_form", %{
           "current_password" => password,
-            "account" => %{
+          "account" => %{
             "email" => user.account.email,
             "password" => new_password,
             "password_confirmation" => new_password
@@ -68,9 +68,10 @@ defmodule SorgenfriWeb.UserSettingsLiveTest do
         |> element("#password_form")
         |> render_change(%{
           "current_password" => "invalid",
-            "account" => %{
+          "account" => %{
             "password" => "too",
-            "password_confirmation" => "does not match"}
+            "password_confirmation" => "does not match"
+          }
         })
 
       assert result =~ "Change Password"
@@ -87,7 +88,8 @@ defmodule SorgenfriWeb.UserSettingsLiveTest do
           "current_password" => "invalid",
           "account" => %{
             "password" => "too",
-            "password_confirmation" => "does not match"}
+            "password_confirmation" => "does not match"
+          }
         })
         |> render_submit()
 

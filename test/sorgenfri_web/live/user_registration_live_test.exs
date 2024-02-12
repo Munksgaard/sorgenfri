@@ -28,7 +28,9 @@ defmodule SorgenfriWeb.UserRegistrationLiveTest do
       result =
         lv
         |> element("#registration_form")
-        |> render_change(user: %{"name" => "", "account" => %{"email" => "with spaces", "password" => "too"}})
+        |> render_change(
+          user: %{"name" => "", "account" => %{"email" => "with spaces", "password" => "too"}}
+        )
 
       assert result =~ "Register"
       assert result =~ "be blank"
@@ -42,7 +44,12 @@ defmodule SorgenfriWeb.UserRegistrationLiveTest do
       {:ok, lv, _html} = live(conn, ~p"/accounts/register")
 
       email = unique_user_email()
-      form = form(lv, "#registration_form", user: valid_user_attributes(account: %{email: email, password: "valid password"}))
+
+      form =
+        form(lv, "#registration_form",
+          user: valid_user_attributes(account: %{email: email, password: "valid password"})
+        )
+
       render_submit(form)
       conn = follow_trigger_action(form, conn)
 
@@ -70,6 +77,7 @@ defmodule SorgenfriWeb.UserRegistrationLiveTest do
 
       assert result =~ "has already been taken"
     end
+
     test "renders errors for duplicated name", %{conn: conn} do
       {:ok, lv, _html} = live(conn, ~p"/accounts/register")
 
@@ -78,7 +86,10 @@ defmodule SorgenfriWeb.UserRegistrationLiveTest do
       result =
         lv
         |> form("#registration_form",
-          user: %{"name" => user.name, "account" => %{"email" => unique_user_email(), "password" => "valid_password"}}
+          user: %{
+            "name" => user.name,
+            "account" => %{"email" => unique_user_email(), "password" => "valid_password"}
+          }
         )
         |> render_submit()
 
