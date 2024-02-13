@@ -17,12 +17,6 @@ defmodule SorgenfriWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", SorgenfriWeb do
-    pipe_through :browser
-
-    get "/", PageController, :home
-  end
-
   # Other scopes may use custom stacks.
   # scope "/api", SorgenfriWeb do
   #   pipe_through :api
@@ -66,6 +60,7 @@ defmodule SorgenfriWeb.Router do
 
     live_session :require_authenticated_user,
       on_mount: [{SorgenfriWeb.UserAuth, :ensure_authenticated}] do
+      live "/", HomeLive
       live "/accounts/settings", UserSettingsLive, :edit
       live "/accounts/settings/confirm_email/:token", UserSettingsLive, :confirm_email
     end

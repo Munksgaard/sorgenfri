@@ -6,6 +6,19 @@ defmodule Sorgenfri.Assets.Asset do
   alias Sorgenfri.Albums.Album
   alias Sorgenfri.Comments.Comment
 
+  @derive {
+    Flop.Schema,
+    filterable: [],
+    sortable: [:date],
+    default_order: %{
+      order_by: [:date],
+      order_directions: [:desc]
+    },
+    default_limit: 30,
+    pagination_types: [:first],
+    default_pagination_type: :first
+  }
+
   schema "assets" do
     field :date, :integer
     field :description, :string

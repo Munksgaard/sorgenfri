@@ -17,8 +17,8 @@ defmodule Sorgenfri.Assets do
       [%Asset{}, ...]
 
   """
-  def list_assets do
-    Repo.all(Asset)
+  def list_assets!(params \\ %{}) do
+    Flop.validate_and_run!(Asset, params, for: Asset)
   end
 
   @doc """

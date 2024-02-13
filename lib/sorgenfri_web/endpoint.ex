@@ -23,6 +23,8 @@ defmodule SorgenfriWeb.Endpoint do
     gzip: false,
     only: SorgenfriWeb.static_paths()
 
+  plug Plug.Static, from: "assets", at: "/assets"
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do

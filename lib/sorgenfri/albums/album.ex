@@ -3,7 +3,7 @@ defmodule Sorgenfri.Albums.Album do
   import Ecto.Changeset
 
   alias Sorgenfri.Accounts.User
-  alias Sorgenfri.Asset.Asset
+  alias Sorgenfri.Assets.Asset
 
   schema "albums" do
     field :date, :integer
