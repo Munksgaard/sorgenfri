@@ -9,6 +9,10 @@ defmodule Sorgenfri.Accounts.User do
     field :date, :integer
 
     has_one :account, Sorgenfri.Accounts.Account
+
+    has_many :albums, Sorgenfri.Albums.Album
+    has_many :asset, Sorgenfri.Assets.Asset
+    has_many :comments, Sorgenfri.Comments.Comment
   end
 
   @doc """
