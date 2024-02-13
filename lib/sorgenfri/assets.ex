@@ -37,6 +37,28 @@ defmodule Sorgenfri.Assets do
   """
   def get_asset!(id), do: Repo.get!(Asset, id)
 
+  def get_asset_and_around!(id) do
+    subquery =
+      from a in Asset,
+        select: %{
+          a_id: a.id,
+          around:
+            over(fragment("group_concat(?, '.')", a.id),
+              order_by: fragment("date rows between 1 preceding and 1 following")
+            )
+        }
+
+    query =
+      from s in subquery(subquery),
+        join: a in Asset,
+        on: s.a_id == a.id,
+        where: s.a_id == ^id,
+        limit: 1,
+        select: {a, s.around}
+
+    Repo.one!(query)
+  end
+
   @doc """
   Creates a asset.
 

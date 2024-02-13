@@ -16,11 +16,9 @@ defmodule SorgenfriWeb.HomeLive do
           if(!@meta.has_next_page?, do: "pb-10", else: "pb-[calc(200vh)]")
         ]}
       >
-        <img
-          :for={{dom_id, asset} <- @streams.assets}
-          loading="lazy"
-          src={"/assets/#{asset.hash}/thumb_180x180.webp"}
-        />
+        <.link :for={{dom_id, asset} <- @streams.assets} navigate={~p"/view/#{asset}"}>
+          <img loading="lazy" src={"/assets/#{asset.hash}/thumb_180x180.webp"} />
+        </.link>
       </div>
       <%= if @meta.has_next_page? do %>
         <div class="flex justify-center" phx-page-loading phx-viewport-bottom="next-page">

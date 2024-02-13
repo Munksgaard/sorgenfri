@@ -61,6 +61,7 @@ defmodule SorgenfriWeb.Router do
     live_session :require_authenticated_user,
       on_mount: [{SorgenfriWeb.UserAuth, :ensure_authenticated}] do
       live "/", HomeLive
+      live "/view/:id", ViewLive
       live "/accounts/settings", UserSettingsLive, :edit
       live "/accounts/settings/confirm_email/:token", UserSettingsLive, :confirm_email
     end
