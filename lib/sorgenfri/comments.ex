@@ -7,6 +7,8 @@ defmodule Sorgenfri.Comments do
   alias Sorgenfri.Repo
 
   alias Sorgenfri.Comments.Comment
+  alias Sorgenfri.Accounts.Account
+  alias Sorgenfri.Assets.Asset
 
   @doc """
   Returns the list of comments.
@@ -17,8 +19,8 @@ defmodule Sorgenfri.Comments do
       [%Comment{}, ...]
 
   """
-  def list_comments do
-    Repo.all(Comment)
+  def list_comments_query do
+    from Comment, order_by: [desc: :date], preload: [:user]
   end
 
   @doc """
@@ -49,8 +51,8 @@ defmodule Sorgenfri.Comments do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_comment(attrs \\ %{}) do
-    %Comment{}
+  def create_comment(%Account{} = account, %Asset{} = asset, attrs \\ %{}) do
+    %Comment{user_id: account.user_id, asset_id: asset.id}
     |> Comment.changeset(attrs)
     |> Repo.insert()
   end

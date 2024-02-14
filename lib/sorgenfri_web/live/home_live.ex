@@ -3,6 +3,7 @@ defmodule SorgenfriWeb.HomeLive do
 
   alias Sorgenfri.Assets
 
+  @impl true
   def render(assigns) do
     ~H"""
     <div class="space-y-8">
@@ -31,6 +32,7 @@ defmodule SorgenfriWeb.HomeLive do
     """
   end
 
+  @impl true
   def handle_params(_params, _uri, socket) do
     {assets, meta} = Assets.list_assets!()
 
@@ -40,6 +42,7 @@ defmodule SorgenfriWeb.HomeLive do
      |> stream(:assets, assets)}
   end
 
+  @impl true
   def handle_event("next-page", _, socket) do
     {assets, meta} =
       socket.assigns.meta
