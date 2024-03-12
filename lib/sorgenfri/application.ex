@@ -7,11 +7,16 @@ defmodule Sorgenfri.Application do
 
   @impl true
   def start(_type, _args) do
+    Logger.add_handlers(:sorgenfri)
+    :ok = Oban.Telemetry.attach_default_logger()
+
     children = [
       # Start the Telemetry supervisor
       SorgenfriWeb.Telemetry,
       # Start the Ecto repository
       Sorgenfri.Repo,
+      # Start Oban
+      {Oban, Application.fetch_env!(:sorgenfri, Oban)},
       # Start the PubSub system
       {Phoenix.PubSub, name: Sorgenfri.PubSub},
       # Start Finch
