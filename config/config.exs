@@ -71,7 +71,7 @@ config :flop, repo: Sorgenfri.Repo
 # Oban
 config :sorgenfri, Oban,
   engine: Oban.Engines.Lite,
-  queues: [default: 10],
+  queues: [transcoders: 10],
   repo: Sorgenfri.Repo
 
 # Import environment specific config. This must remain at the bottom

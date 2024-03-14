@@ -53,6 +53,7 @@ defmodule Sorgenfri.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:rustler, "~> 0.30.0", runtime: false},
       {:oban, "~> 2.17"},
+      {:mogrify, "~> 0.9.3"},
       {:flop, "~> 0.25.0"}
     ]
   end
