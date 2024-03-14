@@ -100,7 +100,7 @@ defmodule SorgenfriWeb do
       use Phoenix.VerifiedRoutes,
         endpoint: SorgenfriWeb.Endpoint,
         router: SorgenfriWeb.Router,
-        statics: SorgenfriWeb.static_paths()
+        statics: ["uploads" | SorgenfriWeb.static_paths()]
     end
   end
 

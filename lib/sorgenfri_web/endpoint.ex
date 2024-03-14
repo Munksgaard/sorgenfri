@@ -25,7 +25,7 @@ defmodule SorgenfriWeb.Endpoint do
 
   plug Plug.Static,
     from: Application.fetch_env!(:sorgenfri, Sorgenfri.Assets)[:asset_dir],
-    at: "/assets"
+    at: "/uploads"
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

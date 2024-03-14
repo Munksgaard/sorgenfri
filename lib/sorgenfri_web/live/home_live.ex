@@ -32,7 +32,7 @@ defmodule SorgenfriWeb.HomeLive do
         ]}
       >
         <.link :for={{dom_id, asset} <- @streams.assets} navigate={~p"/view/#{asset}"} id={dom_id}>
-          <img loading="lazy" src={"/assets/#{asset.hash}/thumb_180x180.webp"} />
+          <img loading="lazy" src={"/uploads/#{asset.hash}/thumb_180x180.webp"} />
         </.link>
       </div>
       <%= if @meta.has_next_page? do %>
