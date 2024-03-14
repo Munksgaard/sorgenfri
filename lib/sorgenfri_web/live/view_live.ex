@@ -87,7 +87,7 @@ defmodule SorgenfriWeb.ViewLive do
            socket.assigns.asset,
            comment_params
          ) do
-      {:ok, comment} ->
+      {:ok, _comment} ->
         asset =
           Repo.preload(socket.assigns.asset, [comments: Comments.list_comments_query()],
             force: true
