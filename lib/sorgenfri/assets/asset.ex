@@ -38,6 +38,6 @@ defmodule Sorgenfri.Assets.Asset do
   def changeset(asset, attrs) do
     asset
     |> cast(attrs, [:description])
-    |> validate_required([:description])
+    |> validate_required([])
   end
 end
