@@ -68,7 +68,7 @@ defmodule SorgenfriWeb.ViewLive do
       [prev, ^current_id] -> %{prev: prev}
       [^current_id, next] -> %{next: next}
       [prev, ^current_id, next] -> %{prev: prev, next: next}
-      [] -> %{}
+      [^current_id] -> %{}
     end
   end
 
