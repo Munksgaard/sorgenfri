@@ -20,8 +20,8 @@ if System.get_env("PHX_SERVER") do
   config :sorgenfri, SorgenfriWeb.Endpoint, server: true
 end
 
-if asset_dir = System.get_env("ASSET_DIR") do
-  config :sorgenfri, Sorgenfri.Assets, asset_dir: asset_dir
+if upload_dir = System.get_env("UPLOAD_DIR") do
+  config :sorgenfri, Sorgenfri.Uploads, upload_dir: upload_dir
 end
 
 if config_env() == :prod do

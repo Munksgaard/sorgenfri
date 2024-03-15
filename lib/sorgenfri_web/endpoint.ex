@@ -24,7 +24,7 @@ defmodule SorgenfriWeb.Endpoint do
     only: SorgenfriWeb.static_paths()
 
   plug Plug.Static,
-    from: Application.fetch_env!(:sorgenfri, Sorgenfri.Assets)[:asset_dir],
+    from: {Sorgenfri.Uploads, :upload_dir, []},
     at: "/uploads"
 
   # Code reloading can be explicitly enabled under the
