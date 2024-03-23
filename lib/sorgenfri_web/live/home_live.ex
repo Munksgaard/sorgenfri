@@ -89,7 +89,7 @@ defmodule SorgenfriWeb.HomeLive do
         # You will need to create `priv/static/uploads` for `File.cp!/2` to work.
         hash = :crypto.hash(:sha256, File.read!(path)) |> Base.encode32(padding: false)
 
-        asset_dir = Application.fetch_env!(:sorgenfri, Sorgenfri.Assets)[:asset_dir]
+        asset_dir = Application.fetch_env!(:sorgenfri, Sorgenfri.Uploads)[:upload_dir]
         dest_dir = Path.join(asset_dir, hash)
 
         extension =
@@ -145,10 +145,16 @@ defmodule SorgenfriWeb.HomeLive do
         {:noreply, assign_form(socket, changeset)}
 
       [{:already_uploaded, _hash}] ->
-        {:noreply, put_flash(socket, :error, "Den uploaded fil findes allerede")}
+        changeset = change_asset(socket.assigns.current_user)
+
+        {:noreply,
+         put_flash(socket, :error, "Den uploaded fil findes allerede") |> assign_form(changeset)}
 
       [{:new_job, _job}] ->
-        {:noreply, put_flash(socket, :info, "Den uploadede fil behandles...")}
+        changeset = change_asset(socket.assigns.current_user)
+
+        {:noreply,
+         put_flash(socket, :info, "Den uploadede fil behandles...") |> assign_form(changeset)}
     end
   end
 

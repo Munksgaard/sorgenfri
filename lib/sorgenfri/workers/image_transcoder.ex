@@ -33,8 +33,8 @@ defmodule Sorgenfri.Workers.ImageTranscoder do
   end
 
   defp get_asset_dir do
-    with {:ok, env} <- Application.fetch_env(:sorgenfri, Sorgenfri.Assets) do
-      if asset_dir = env[:asset_dir] do
+    with {:ok, env} <- Application.fetch_env(:sorgenfri, Sorgenfri.Uploads) do
+      if asset_dir = env[:upload_dir] do
         {:ok, asset_dir}
       else
         {:error, :asset_dir_not_set}
