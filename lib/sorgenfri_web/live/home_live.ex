@@ -4,9 +4,7 @@ defmodule SorgenfriWeb.HomeLive do
   alias Sorgenfri.Accounts.Account
   alias Sorgenfri.Assets
   alias Sorgenfri.Assets.Asset
-  alias SorgenfriWeb.Endpoint
-
-  alias Phoenix.Socket.Broadcast
+  alias Sorgenfri.Repo
 
   @impl true
   def render(assigns) do
@@ -63,8 +61,6 @@ defmodule SorgenfriWeb.HomeLive do
         <div class="flex justify-center" phx-page-loading phx-viewport-bottom="next-page">
           Loading...
         </div>
-      <% else %>
-        🎉 You made it to the beginning of time 🎉
       <% end %>
     </div>
     """
@@ -129,11 +125,12 @@ defmodule SorgenfriWeb.HomeLive do
         {:noreply,
          put_flash(socket, :error, "Den uploaded fil findes allerede") |> assign_form(changeset)}
 
-      [{:new_job, _job}] ->
-        changeset = change_asset(socket.assigns.current_user)
-
+      [{:ok, asset}] ->
         {:noreply,
-         put_flash(socket, :info, "Den uploadede fil behandles...") |> assign_form(changeset)}
+         socket
+         |> put_flash(:info, "Fil uploadet!")
+         |> assign_form(change_asset(socket.assigns.current_user))
+         |> stream_insert(:assets, asset, at: 0)}
     end
   end
 
@@ -148,7 +145,7 @@ defmodule SorgenfriWeb.HomeLive do
       entry.client_name
       |> Path.extname()
 
-    dest = Path.join(dest_dir, entry.client_name)
+    dest = Path.join(dest_dir, "original#{extension}")
 
     changeset =
       Assets.change_asset(
@@ -162,41 +159,39 @@ defmodule SorgenfriWeb.HomeLive do
       )
 
     if changeset.valid? do
-      :ok = Endpoint.subscribe("transcode")
-
       case File.mkdir(dest_dir) do
         :ok ->
           File.cp!(path, dest)
 
-          {:ok, job} =
+          :ok =
+            Thumbnex.create_thumbnail(
+              dest,
+              Path.join(dest_dir, "thumb_180x180.webp"),
+              max_width: 180,
+              max_height: 180
+            )
+
+          kind =
             case entry.client_type do
               <<"image/", _::binary>> ->
-                %{
-                  dest: dest,
-                  hash: hash,
-                  extension: extension,
-                  filename: entry.client_name,
-                  user_id: current_user.id,
-                  params: asset_params
-                }
-                |> Sorgenfri.Workers.ImageTranscoder.new()
-                |> Oban.insert()
+                :image
 
               <<"video/", _::binary>> ->
-                Sorgenfri.Workers.VideoTranscoder.create_webm(asset_dir, dest, hash)
-                # %{
-                #   dest: dest,
-                #   hash: hash,
-                #   extension: extension,
-                #   filename: entry.client_name,
-                #   user_id: current_user.id,
-                #   params: asset_params
-                # }
-                # |> Sorgenfri.Workers.VideoTranscoder.new()
-                # |> Oban.insert()
+                :video
             end
 
-          {:ok, {:new_job, job}}
+          case %Asset{
+                 extension: extension,
+                 filename: entry.client_name,
+                 hash: hash,
+                 kind: kind,
+                 user_id: current_user.id
+               }
+               |> Assets.change_asset(asset_params)
+               |> Repo.insert() do
+            {:error, error} -> {:postpone, {:insert_failed, error}}
+            {:ok, asset} -> {:ok, {:ok, asset}}
+          end
 
         {:error, :eexist} ->
           {:ok, {:already_uploaded, hash}}
@@ -213,16 +208,5 @@ defmodule SorgenfriWeb.HomeLive do
 
   defp assign_form(socket, %Ecto.Changeset{} = changeset) do
     assign(socket, :form, to_form(changeset))
-  end
-
-  @impl true
-  def handle_info(
-        %Broadcast{topic: "transcode", event: "complete", payload: %{hash: _hash}},
-        socket
-      ) do
-    {assets, meta} = Assets.list_assets!()
-
-    {:noreply,
-     socket |> stream(:assets, assets, reset: true) |> assign(meta: meta) |> clear_flash(:info)}
   end
 end

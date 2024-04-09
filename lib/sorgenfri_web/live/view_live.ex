@@ -22,8 +22,15 @@ defmodule SorgenfriWeb.ViewLive do
       </div>
 
       <figure>
-        <img :if={@asset.kind == :image} src={~p"/uploads/#{@asset.hash}/full.webp"} />
-        <video :if={@asset.kind == :video} controls src={~p"/uploads/#{@asset.hash}/full.webm"}>
+        <img
+          :if={@asset.kind == :image}
+          src={~p"/uploads/#{@asset.hash}/original#{@asset.extension}"}
+        />
+        <video
+          :if={@asset.kind == :video}
+          controls
+          src={~p"/uploads/#{@asset.hash}/original#{@asset.extension}"}
+        >
         </video>
         <figcaption>
           <%= @asset.description %>

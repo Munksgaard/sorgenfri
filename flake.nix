@@ -81,7 +81,7 @@
               elixir
               pkgs.sqlite
               pkgs.imagemagick
-              pkgs.ffmpeg
+              pkgs.ffmpeg-full
               pkgs.inotify-tools
             ];
           };
