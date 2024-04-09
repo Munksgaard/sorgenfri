@@ -12,12 +12,16 @@ defmodule SorgenfriWeb.ViewLive do
   def render(assigns) do
     ~H"""
     <div class="space-y-8">
-      <div>
-        <div :if={assigns[:prev]}>
-          <%= @prev %>
+      <div class="flex justify-between">
+        <div>
+          <.link :if={assigns[:next]} navigate={~p"/view/#{@next}"}>
+            <.icon name="hero-chevron-left" />
+          </.link>
         </div>
-        <div :if={assigns[:next]}>
-          <%= @next %>
+        <div>
+          <.link :if={assigns[:prev]} navigate={~p"/view/#{@prev}"}>
+            <.icon name="hero-chevron-right" />
+          </.link>
         </div>
       </div>
 
@@ -52,6 +56,35 @@ defmodule SorgenfriWeb.ViewLive do
         </.simple_form>
       </div>
     </div>
+
+    <script>
+      window.addEventListener("keydown", function (event) {
+        if (event.defaultPrevented || event.isComposing || event.metaKey ||
+            event.shiftKey || event.ctrlKey || event.altKey) {
+          return;
+        }
+
+        switch (event.key) {
+          <%= if assigns[:next] do %>
+            case "Left": // IE/Edge specific value
+            case "ArrowLeft":
+              location.assign("/view/<%= @next %>");
+              break;
+          <% end %>
+          <%= if assigns[:prev] do %>
+            case "Right": // IE/Edge specific value
+            case "ArrowRight":
+              // Do something for "right arrow" key press.
+              location.assign("/view/<%= @prev %>");
+              break;
+          <% end %>
+            default:
+              return; // Quit when this doesn't handle the key event.
+        }
+
+        event.preventDefault();
+      }, true);
+    </script>
     """
   end
 
