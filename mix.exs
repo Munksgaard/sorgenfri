@@ -54,6 +54,7 @@ defmodule Sorgenfri.MixProject do
       {:rustler, "~> 0.30.0", runtime: false},
       {:oban, "~> 2.17"},
       {:mogrify, "~> 0.9.3"},
+      {:ffmpex, "~> 0.10.0"},
       {:flop, "~> 0.25.0"}
     ]
   end
