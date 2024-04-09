@@ -14,12 +14,36 @@ defmodule SorgenfriWeb.HomeLive do
     <div class="space-y-8">
       <div id="upload">
         <.simple_form for={@form} phx-change="validate" phx-submit="save">
+          <label for={@uploads.asset.ref}>Image or video</label>
           <.live_file_input upload={@uploads.asset} />
           <.input field={@form[:description]} label="Beskrivelse" />
           <:actions>
             <.button>Tilføj</.button>
           </:actions>
         </.simple_form>
+
+        <div :for={entry <- @uploads.asset.entries}>
+          <figure>
+            <.live_img_preview entry={entry} />
+            <figcaption><%= entry.client_name %></figcaption>
+          </figure>
+
+          <%!-- entry.progress will update automatically for in-flight entries --%>
+          <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
+
+          <%!-- a regular click event whose handler will invoke Phoenix.LiveView.cancel_upload/3 --%>
+          <button
+            type="button"
+            phx-click="cancel-upload"
+            phx-value-ref={entry.ref}
+            aria-label="cancel"
+          >
+            &times;
+          </button>
+
+          <%!-- Phoenix.Component.upload_errors/2 returns a list of error atoms --%>
+          <.error :for={err <- upload_errors(@uploads.asset, entry)}><%= to_string(err) %></.error>
+        </div>
       </div>
       <div
         id="assets"
@@ -57,7 +81,11 @@ defmodule SorgenfriWeb.HomeLive do
      |> assign(:current_user, socket.assigns.current_user)
      |> assign(:meta, meta)
      |> stream(:assets, assets)
-     |> allow_upload(:asset, accept: ["video/*", "image/*"])
+     |> allow_upload(:asset,
+       accept: ["video/*", "image/*"],
+       max_file_size: 10_000_000_000,
+       auto_upload: true
+     )
      |> assign_form(changeset)}
   end
 
@@ -85,60 +113,11 @@ defmodule SorgenfriWeb.HomeLive do
   @impl Phoenix.LiveView
   def handle_event("save", %{"asset" => asset_params}, socket) do
     entries =
-      consume_uploaded_entries(socket, :asset, fn %{path: path}, entry ->
-        # You will need to create `priv/static/uploads` for `File.cp!/2` to work.
-        hash = :crypto.hash(:sha256, File.read!(path)) |> Base.encode32(padding: false)
-
-        asset_dir = Application.fetch_env!(:sorgenfri, Sorgenfri.Uploads)[:upload_dir]
-        dest_dir = Path.join(asset_dir, hash)
-
-        extension =
-          entry.client_name
-          |> Path.extname()
-
-        dest = Path.join(dest_dir, "original#{Path.extname(path)}")
-
-        changeset =
-          Assets.change_asset(
-            %Asset{
-              extension: extension,
-              filename: entry.client_name,
-              hash: hash,
-              kind: :image,
-              user_id: socket.assigns.current_user.id
-            },
-            asset_params
-          )
-
-        if changeset.valid? do
-          :ok = Endpoint.subscribe("transcode")
-
-          case File.mkdir(dest_dir) do
-            :ok ->
-              File.cp!(path, dest)
-
-              {:ok, job} =
-                %{
-                  dest: dest,
-                  hash: hash,
-                  kind: :image,
-                  extension: extension,
-                  filename: entry.client_name,
-                  user_id: socket.assigns.current_user.id,
-                  params: asset_params
-                }
-                |> Sorgenfri.Workers.ImageTranscoder.new()
-                |> Oban.insert()
-
-              {:ok, {:new_job, job}}
-
-            {:error, :eexist} ->
-              {:ok, {:already_uploaded, hash}}
-          end
-        else
-          {:postpone, {:invalid_changeset, changeset}}
-        end
-      end)
+      consume_uploaded_entries(
+        socket,
+        :asset,
+        &consume_entry(socket.assigns.current_user, asset_params, &1, &2)
+      )
 
     case entries do
       [{:invalid_changeset, changeset}] ->
@@ -155,6 +134,75 @@ defmodule SorgenfriWeb.HomeLive do
 
         {:noreply,
          put_flash(socket, :info, "Den uploadede fil behandles...") |> assign_form(changeset)}
+    end
+  end
+
+  defp consume_entry(current_user, asset_params, %{path: path}, entry) do
+    # You will need to create `priv/static/uploads` for `File.cp!/2` to work.
+    hash = :crypto.hash(:sha256, File.read!(path)) |> Base.encode32(padding: false)
+
+    asset_dir = Application.fetch_env!(:sorgenfri, Sorgenfri.Uploads)[:upload_dir]
+    dest_dir = Path.join(asset_dir, hash)
+
+    extension =
+      entry.client_name
+      |> Path.extname()
+
+    dest = Path.join(dest_dir, entry.client_name)
+
+    changeset =
+      Assets.change_asset(
+        %Asset{
+          filename: entry.client_name,
+          hash: hash,
+          kind: :image,
+          user_id: current_user.id
+        },
+        asset_params
+      )
+
+    if changeset.valid? do
+      :ok = Endpoint.subscribe("transcode")
+
+      case File.mkdir(dest_dir) do
+        :ok ->
+          File.cp!(path, dest)
+
+          {:ok, job} =
+            case entry.client_type do
+              <<"image/", _::binary>> ->
+                %{
+                  dest: dest,
+                  hash: hash,
+                  extension: extension,
+                  filename: entry.client_name,
+                  user_id: current_user.id,
+                  params: asset_params
+                }
+                |> Sorgenfri.Workers.ImageTranscoder.new()
+                |> Oban.insert()
+
+              <<"video/", _::binary>> ->
+                Sorgenfri.Workers.VideoTranscoder.create_webm(asset_dir, dest, hash)
+                # %{
+                #   dest: dest,
+                #   hash: hash,
+                #   extension: extension,
+                #   filename: entry.client_name,
+                #   user_id: current_user.id,
+                #   params: asset_params
+                # }
+                # |> Sorgenfri.Workers.VideoTranscoder.new()
+                # |> Oban.insert()
+            end
+
+          {:ok, {:new_job, job}}
+
+        {:error, :eexist} ->
+          {:ok, {:already_uploaded, hash}}
+      end
+    else
+      {:postpone, {:invalid_changeset, changeset}}
     end
   end
 
