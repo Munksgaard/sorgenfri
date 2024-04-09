@@ -13,7 +13,6 @@ defmodule Sorgenfri.Workers.ImageTranscoder do
           %{
             "dest" => dest,
             "hash" => hash,
-            "kind" => "image",
             "extension" => _extension,
             "filename" => _filename,
             "user_id" => _user_id,
@@ -57,7 +56,7 @@ defmodule Sorgenfri.Workers.ImageTranscoder do
 
     Mogrify.open(dest)
     |> Mogrify.auto_orient()
-    |> Mogrify.quality("60")
+    |> Mogrify.quality("90")
     |> Mogrify.custom("thumbnail", "180x180")
     |> Mogrify.gravity("center")
     |> Mogrify.extent("180x180")
