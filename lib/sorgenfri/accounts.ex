@@ -26,6 +26,10 @@ defmodule Sorgenfri.Accounts do
     Repo.get_by(Account, email: email)
   end
 
+  def list_users() do
+    Repo.all(User)
+  end
+
   @doc """
   Gets a account by email and password.
 
@@ -226,5 +230,14 @@ defmodule Sorgenfri.Accounts do
       {:ok, %{account: account}} -> {:ok, account}
       {:error, :account, changeset, _} -> {:error, changeset}
     end
+  end
+
+  def admin?(%Account{} = account) do
+    account.role == "admin"
+  end
+
+  def admin?(%User{} = user) do
+    Repo.preload(user, :account).account
+    |> admin?()
   end
 end

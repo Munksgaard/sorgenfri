@@ -68,6 +68,18 @@ defmodule SorgenfriWeb.Router do
   end
 
   scope "/", SorgenfriWeb do
+    pipe_through [:browser, :require_authenticated_user, :require_admin_user]
+
+    live_session :require_admin_user,
+      on_mount: [
+        {SorgenfriWeb.UserAuth, :ensure_authenticated},
+        {SorgenfriWeb.UserAuth, :ensure_admin}
+      ] do
+      live "/admin", AdminLive
+    end
+  end
+
+  scope "/", SorgenfriWeb do
     pipe_through [:browser]
 
     delete "/accounts/log_out", UserSessionController, :delete

@@ -11,6 +11,14 @@
           <li class="text-[0.8125rem] leading-6 text-zinc-900">
             <%= @current_user.email %>
           </li>
+          <li :if={Sorgenfri.Accounts.admin?(@current_user)}>
+            <.link
+              href={~p"/admin"}
+              class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+            >
+              Admin
+            </.link>
+          </li>
           <li>
             <.link
               href={~p"/accounts/settings"}
