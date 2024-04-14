@@ -4,9 +4,13 @@ defmodule Sorgenfri.Accounts do
   """
 
   import Ecto.Query, warn: false
-  alias Sorgenfri.Repo
 
-  alias Sorgenfri.Accounts.{User, AccountToken, AccountNotifier, Account}
+  alias Ecto.Multi
+  alias Sorgenfri.Accounts.User
+  alias Sorgenfri.Accounts.AccountToken
+  alias Sorgenfri.Accounts.AccountNotifier
+  alias Sorgenfri.Accounts.Account
+  alias Sorgenfri.Repo
 
   ## Database getters
 
@@ -239,5 +243,24 @@ defmodule Sorgenfri.Accounts do
   def admin?(%User{} = user) do
     Repo.preload(user, :account).account
     |> admin?()
+  end
+
+  def accept(%Account{} = account) do
+    account |> Ecto.Changeset.change(accepted: true) |> Repo.update()
+  end
+
+  def delete(%User{} = user) do
+    Multi.new()
+    |> Multi.delete(:account, user.account)
+    |> Multi.delete(:user, user)
+    |> Repo.transaction()
+  end
+
+  def make_admin(%Account{} = account) do
+    account |> Ecto.Changeset.change(role: "admin") |> Repo.update()
+  end
+
+  def unmake_admin(%Account{} = account) do
+    account |> Ecto.Changeset.change(role: "user") |> Repo.update()
   end
 end

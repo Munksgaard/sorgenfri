@@ -162,6 +162,18 @@ defmodule SorgenfriWeb.UserAuth do
     end
   end
 
+  def on_mount(:ensure_accepted, _params, session, socket) do
+    if socket.assigns.current_user.accepted do
+      {:cont, socket}
+    else
+      socket =
+        socket
+        |> Phoenix.LiveView.redirect(to: ~p"/not_yet_accepted")
+
+      {:halt, socket}
+    end
+  end
+
   def on_mount(:ensure_admin, _params, session, socket) do
     socket = mount_current_user(socket, session)
 
@@ -181,6 +193,14 @@ defmodule SorgenfriWeb.UserAuth do
     socket = mount_current_user(socket, session)
 
     if socket.assigns.current_user do
+      {:halt, Phoenix.LiveView.redirect(socket, to: signed_in_path(socket))}
+    else
+      {:cont, socket}
+    end
+  end
+
+  def on_mount(:redirect_if_user_is_accepted, _params, session, socket) do
+    if socket.assigns.current_user.accepted do
       {:halt, Phoenix.LiveView.redirect(socket, to: signed_in_path(socket))}
     else
       {:cont, socket}
@@ -208,6 +228,16 @@ defmodule SorgenfriWeb.UserAuth do
     end
   end
 
+  def redirect_if_user_is_accepted(conn, _opts) do
+    if conn.assigns.current_user.accepted do
+      conn
+      |> redirect(to: signed_in_path(conn))
+      |> halt()
+    else
+      conn
+    end
+  end
+
   @doc """
   Used for routes that require the user to be authenticated.
 
@@ -222,6 +252,17 @@ defmodule SorgenfriWeb.UserAuth do
       |> put_flash(:error, "You must log in to access this page.")
       |> maybe_store_return_to()
       |> redirect(to: ~p"/accounts/log_in")
+      |> halt()
+    end
+  end
+
+  def require_accepted_user(conn, _opts) do
+    if conn.assigns.current_user.accepted do
+      conn
+    else
+      conn
+      |> maybe_store_return_to()
+      |> redirect(to: ~p"/not_yet_accepted")
       |> halt()
     end
   end

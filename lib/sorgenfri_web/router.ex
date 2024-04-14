@@ -56,10 +56,25 @@ defmodule SorgenfriWeb.Router do
   end
 
   scope "/", SorgenfriWeb do
-    pipe_through [:browser, :require_authenticated_user]
+    pipe_through [:browser, :require_authenticated_user, :redirect_if_user_is_accepted]
 
     live_session :require_authenticated_user,
-      on_mount: [{SorgenfriWeb.UserAuth, :ensure_authenticated}] do
+      on_mount: [
+        {SorgenfriWeb.UserAuth, :ensure_authenticated},
+        {SorgenfriWeb.UserAuth, :redirect_if_user_is_accepted}
+      ] do
+      live "/not_yet_accepted", NotYetAcceptedLive
+    end
+  end
+
+  scope "/", SorgenfriWeb do
+    pipe_through [:browser, :require_authenticated_user, :require_accepted_user]
+
+    live_session :require_accepted_user,
+      on_mount: [
+        {SorgenfriWeb.UserAuth, :ensure_authenticated},
+        {SorgenfriWeb.UserAuth, :ensure_accepted}
+      ] do
       live "/", HomeLive
       live "/view/:id", ViewLive
       live "/accounts/settings", UserSettingsLive, :edit
@@ -75,7 +90,8 @@ defmodule SorgenfriWeb.Router do
         {SorgenfriWeb.UserAuth, :ensure_authenticated},
         {SorgenfriWeb.UserAuth, :ensure_admin}
       ] do
-      live "/admin", AdminLive
+      live "/admin", AdminLive, :index
+      live "/admin/users/:user_id/edit", AdminLive, :edit_user
     end
   end
 
