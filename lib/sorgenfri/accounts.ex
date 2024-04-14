@@ -272,4 +272,20 @@ defmodule Sorgenfri.Accounts do
 
     Repo.all(query)
   end
+
+  def disable_email_notifications(%Account{} = account) do
+    account |> Ecto.Changeset.change(new_asset_notification: false) |> Repo.update()
+  end
+
+  def enable_email_notifications(%Account{} = account) do
+    account |> Ecto.Changeset.change(new_asset_notification: true) |> Repo.update()
+  end
+
+  def change_notifications(%Account{} = account, params \\ %{}) do
+    Account.change_notifications(account, params)
+  end
+
+  def update_notifications(%Account{} = account, params \\ %{}) do
+    account |> change_notifications(params) |> Repo.update()
+  end
 end

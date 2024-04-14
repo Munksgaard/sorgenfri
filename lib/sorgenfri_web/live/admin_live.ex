@@ -5,7 +5,7 @@ defmodule SorgenfriWeb.AdminLive do
   alias Sorgenfri.Repo
 
   @impl true
-  def mount(params, session, socket) do
+  def mount(_params, _session, socket) do
     users = Accounts.list_users() |> Repo.preload(:account)
 
     {:ok, stream(socket, :users, users)}

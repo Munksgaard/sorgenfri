@@ -162,7 +162,7 @@ defmodule SorgenfriWeb.UserAuth do
     end
   end
 
-  def on_mount(:ensure_accepted, _params, session, socket) do
+  def on_mount(:ensure_accepted, _params, _session, socket) do
     if socket.assigns.current_user.accepted do
       {:cont, socket}
     else
@@ -199,7 +199,7 @@ defmodule SorgenfriWeb.UserAuth do
     end
   end
 
-  def on_mount(:redirect_if_user_is_accepted, _params, session, socket) do
+  def on_mount(:redirect_if_user_is_accepted, _params, _session, socket) do
     if socket.assigns.current_user.accepted do
       {:halt, Phoenix.LiveView.redirect(socket, to: signed_in_path(socket))}
     else

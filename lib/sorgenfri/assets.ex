@@ -127,8 +127,8 @@ defmodule Sorgenfri.Assets do
   def new_updates_last_day? do
     query =
       from a in Asset,
-        where: a.date > from_now(-1, "day")
+        where: a.date > fragment("unixepoch(?)", from_now(-1, "day"))
 
-    Repo.exists?(query)
+    Repo.exists?(dbg(query))
   end
 end

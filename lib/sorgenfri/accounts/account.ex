@@ -154,4 +154,9 @@ defmodule Sorgenfri.Accounts.Account do
       add_error(changeset, :current_password, "is not valid")
     end
   end
+
+  def change_notifications(account, attrs) do
+    account
+    |> cast(attrs, [:new_asset_notification, :new_comment_notification])
+  end
 end

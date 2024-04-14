@@ -80,7 +80,7 @@ config :sorgenfri, Oban,
        {
          # Send emails every night if new posts
          "@midnight",
-         Sorgenfri.Workers.NewPhotoNotificationSender,
+         Sorgenfri.Workers.NewPhotoNotification,
          queue: :email
        }
      ]}
