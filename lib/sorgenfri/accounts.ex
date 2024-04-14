@@ -263,4 +263,13 @@ defmodule Sorgenfri.Accounts do
   def unmake_admin(%Account{} = account) do
     account |> Ecto.Changeset.change(role: "user") |> Repo.update()
   end
+
+  def new_asset_notification_receivers do
+    query =
+      from a in Account,
+        where: a.new_asset_notification,
+        where: a.accepted
+
+    Repo.all(query)
+  end
 end

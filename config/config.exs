@@ -71,8 +71,20 @@ config :flop, repo: Sorgenfri.Repo
 # Oban
 config :sorgenfri, Oban,
   engine: Oban.Engines.Lite,
-  queues: [transcoders: 10],
-  repo: Sorgenfri.Repo
+  queues: [email: 10],
+  repo: Sorgenfri.Repo,
+  plugins: [
+    Oban.Plugins.Pruner,
+    {Oban.Plugins.Cron,
+     crontab: [
+       {
+         # Send emails every night if new posts
+         "@midnight",
+         Sorgenfri.Workers.NewPhotoNotificationSender,
+         queue: :email
+       }
+     ]}
+  ]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

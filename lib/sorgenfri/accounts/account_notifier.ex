@@ -76,4 +76,20 @@ defmodule Sorgenfri.Accounts.AccountNotifier do
     ==============================
     """)
   end
+
+  @doc """
+  Deliver notification about new uploads.
+  """
+  def deliver_new_photo_notification(account, url) do
+    deliver(account.email, "Nye billeder i Ebbes fotoalbum", """
+    Kære #{account.user.name},
+
+    Der er i dag blevet uploadet nye billeder i Ebbes fotoalbum. Se dem her: https://photos.munksgaard.me.
+
+    Du kan afmelde disse notifikationer ved at gå til https://photos.munksgaard.me/update-notification-preferences.
+
+    Venlig hilsen
+    Fotoalbummet
+    """)
+  end
 end

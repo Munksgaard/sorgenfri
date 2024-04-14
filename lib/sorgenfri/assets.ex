@@ -123,4 +123,12 @@ defmodule Sorgenfri.Assets do
   def change_asset(%Asset{} = asset, attrs \\ %{}) do
     Asset.changeset(asset, attrs)
   end
+
+  def new_updates_last_day? do
+    query =
+      from a in Asset,
+        where: a.date > from_now(-1, "day")
+
+    Repo.exists?(query)
+  end
 end
