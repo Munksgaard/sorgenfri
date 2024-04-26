@@ -3,6 +3,8 @@ defmodule Sorgenfri.Assets do
   The Assets context.
   """
 
+  require Logger
+
   import Ecto.Query, warn: false
   alias Sorgenfri.Repo
 
@@ -130,5 +132,63 @@ defmodule Sorgenfri.Assets do
         where: a.date > fragment("unixepoch(?)", from_now(-1, "day"))
 
     Repo.exists?(dbg(query))
+  end
+
+  def create_thumbnail(:video, source, destination) do
+    case System.cmd(
+           "ffmpeg",
+           ~w(-ss 0 -i #{source} -frames:v 1 -filter:v yadif,scale=180:180:force_original_aspect_ratio=increase,crop=180:180 #{destination})
+         ) do
+      {_output, 0} ->
+        Logger.info(%{
+          msg: :thumbnail_created,
+          type: :video,
+          source: source,
+          destination: destination
+        })
+
+        :ok
+
+      {output, n} ->
+        Logger.error(%{
+          msg: :thumbnail_creation_failed,
+          type: :video,
+          source: source,
+          destination: destination,
+          error_code: n,
+          output: output
+        })
+
+        {:error, :thumbnail_creation_failed}
+    end
+  end
+
+  def create_thumbnail(:image, source, destination) do
+    case System.cmd(
+           "magick",
+           ~w(#{source} -thumbnail 180x180^ -gravity center -extent 180x180 #{destination})
+         ) do
+      {_output, 0} ->
+        Logger.info(%{
+          msg: :thumbnail_created,
+          type: :image,
+          source: source,
+          destination: destination
+        })
+
+        :ok
+
+      {output, n} ->
+        Logger.error(%{
+          msg: :thumbnail_creation_failed,
+          type: :image,
+          source: source,
+          destination: destination,
+          error_code: n,
+          output: output
+        })
+
+        {:error, :thumbnail_creation_failed}
+    end
   end
 end

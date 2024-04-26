@@ -163,14 +163,6 @@ defmodule SorgenfriWeb.HomeLive do
         :ok ->
           File.cp!(path, dest)
 
-          :ok =
-            Thumbnex.create_thumbnail(
-              dest,
-              Path.join(dest_dir, "thumb_180x180.webp"),
-              max_width: 180,
-              max_height: 180
-            )
-
           kind =
             case entry.client_type do
               <<"image/", _::binary>> ->
@@ -179,6 +171,9 @@ defmodule SorgenfriWeb.HomeLive do
               <<"video/", _::binary>> ->
                 :video
             end
+
+          :ok =
+            Assets.create_thumbnail(kind, dest, Path.join(dest_dir, "thumb_180x180.webp"))
 
           case %Asset{
                  extension: extension,
