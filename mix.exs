@@ -50,12 +50,12 @@ defmodule Sorgenfri.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
-      {:plug_cowboy, "~> 2.5"},
       {:rustler, "~> 0.30.0", runtime: false},
       {:oban, "~> 2.17"},
       {:thumbnex, "~> 0.5.0"},
       {:flop, "~> 0.25.0"},
-      {:systemd, "~> 0.6.2"}
+      {:systemd, "~> 0.6.2"},
+      {:bandit, "~> 1.5"}
     ]
   end
 

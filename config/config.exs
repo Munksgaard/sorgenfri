@@ -15,6 +15,7 @@ config :sorgenfri, Sorgenfri.Repo, migration_timestamps: [type: :timestamptz]
 
 # Configures the endpoint
 config :sorgenfri, SorgenfriWeb.Endpoint,
+  adapter: Bandit.PhoenixAdapter,
   url: [host: "localhost"],
   render_errors: [
     formats: [html: SorgenfriWeb.ErrorHTML, json: SorgenfriWeb.ErrorJSON],

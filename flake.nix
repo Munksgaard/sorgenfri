@@ -38,7 +38,7 @@
           mixFodDeps = pkgs.beamPackages.fetchMixDeps {
             pname = "${pname}-deps";
             inherit src version;
-            hash = "sha256-csjrie69NxFBaacpnKkl5AjY7cbe2fHnx0QZ+Xpg91g=";
+            hash = "sha256-BlaRPKbd9otMiOMjL6HYnLRknHNaVXW4C2YFOr2FJHM=";
           };
           elixir = builtins.trace "mixFodDeps: ${mixFodDeps}" beam_pkgs.elixir_1_16;
           sorgenfri = beam_pkgs.mixRelease {
