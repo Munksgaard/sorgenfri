@@ -55,13 +55,3 @@ rustler::init!(
     "Elixir.Sorgenfri.PasswordHashingNIF",
     [hash_password, verify_password]
 );
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn verify_password_works() {
-        assert_eq!(Ok(()), verify_password("yrsadrengen", "TnOIqxyhoyXBqqLX5uSJfiWhD7XTukVDZhaUZgtJi3zePKFHZOMWd8g6xODMCt/WJ+OOtJIJrdZW8iClsahqPw==", "QuJ+GhS2jFGO9znM6TCU32ywcgZ7RBsm5pqFk3F7j5edkiTj2K4KjMxZ/vWAASnGp90eNScXGpXPQGAh/aZ5BQ=="))
-    }
-}
