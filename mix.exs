@@ -54,7 +54,8 @@ defmodule Sorgenfri.MixProject do
       {:rustler, "~> 0.30.0", runtime: false},
       {:oban, "~> 2.17"},
       {:thumbnex, "~> 0.5.0"},
-      {:flop, "~> 0.25.0"}
+      {:flop, "~> 0.25.0"},
+      {:systemd, "~> 0.6.2"}
     ]
   end
 

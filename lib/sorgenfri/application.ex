@@ -22,9 +22,12 @@ defmodule Sorgenfri.Application do
       # Start Finch
       {Finch, name: Sorgenfri.Finch},
       # Start the Endpoint (http/https)
-      SorgenfriWeb.Endpoint
+      SorgenfriWeb.Endpoint,
       # Start a worker by calling: Sorgenfri.Worker.start_link(arg)
       # {Sorgenfri.Worker, arg}
+
+      # Notify systemd that we are ready
+      :systemd.ready()
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
