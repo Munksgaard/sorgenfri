@@ -9,12 +9,7 @@
   </:action>
 </.table>
 
-<.modal
-  :if={@live_action in [:edit_user]}
-  id="file-modal"
-  show
-  on_cancel={JS.patch(~p"/admin")}
->
+<.modal :if={@live_action in [:edit_user]} id="file-modal" show on_cancel={JS.patch(~p"/admin")}>
   <.live_component
     id={@user.id}
     module={SorgenfriWeb.Admin.User.FormComponent}
