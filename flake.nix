@@ -246,37 +246,6 @@
 
             };
           });
-
-        nixosConfigurations.test = withSystem "x86_64-linux"
-          (ctx@{ config, inputs', ... }:
-            inputs.nixpkgs.lib.nixosSystem {
-              system = "x86_64-linux";
-              # Expose `packages`, `inputs` and `inputs'` as module arguments.
-              # Use specialArgs permits use in `imports`.
-              # Note: if you publish modules for reuse, do not rely on specialArgs, but
-              # on the flake scope instead. See also https://flake.parts/define-module-in-separate-file.html
-              specialArgs = {
-                packages = config.packages;
-                inherit inputs inputs';
-              };
-              modules = [
-                self.nixosModules.sorgenfri
-                {
-                  system.stateVersion = "23.11";
-
-                  boot.isContainer = true;
-                  networking.useDHCP = false;
-                  networking.firewall.allowedTCPPorts = [ 4000 ];
-                  networking.hostName = "sorgenfri-test";
-
-                  environment.systemPackages = [ config.packages.sorgenfri ];
-
-                  services.sorgenfri = {
-                    enable = true;
-                  };
-                }
-              ];
-            });
       };
     });
 }
