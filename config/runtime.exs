@@ -101,14 +101,34 @@ if config_env() == :prod do
   # Also, you may need to configure the Swoosh API client of your choice if you
   # are not using SMTP. Here is an example of the configuration:
   #
-  #     config :sorgenfri, Sorgenfri.Mailer,
-  #       adapter: Swoosh.Adapters.Mailgun,
-  #       api_key: System.get_env("MAILGUN_API_KEY"),
-  #       domain: System.get_env("MAILGUN_DOMAIN")
-  #
-  # For this example you need include a HTTP client required by Swoosh API client.
-  # Swoosh supports Hackney and Finch out of the box:
-  #
+
+  smtp_username =
+    Leaf.Util.get_secret("SMTP_USERNAME") ||
+      raise "environment variable SMTP_USERNAME is missing."
+
+  smtp_password =
+    Leaf.Util.get_secret("SMTP_PASSWORD") ||
+      raise "environment variable SMTP_PASSWORD is missing."
+
+  smtp_host =
+    Leaf.Util.get_secret("SMTP_HOST") ||
+      raise "environment variable SMTP_HOST is missing."
+
+  smtp_port =
+    String.to_integer(
+      Leaf.Util.get_secret("SMTP_PORT") ||
+        raise("environment variable SMTP_PORT is missing.")
+    )
+
+  config :sorgenfri, Sorgenfri.Mailer,
+    adapter: Swoosh.Adapters.SMTP,
+    relay: smtp_host,
+    username: smtp_username,
+    password: smtp_password,
+    ssl: true,
+    port: smtp_port,
+    retries: 2,
+
   #     config :swoosh, :api_client, Swoosh.ApiClient.Hackney
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.

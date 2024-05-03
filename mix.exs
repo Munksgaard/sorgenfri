@@ -55,7 +55,8 @@ defmodule Sorgenfri.MixProject do
       {:thumbnex, "~> 0.5.0"},
       {:flop, "~> 0.25.0"},
       {:systemd, "~> 0.6.2"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+      {:gen_smtp, "~> 1.2"}
     ]
   end
 

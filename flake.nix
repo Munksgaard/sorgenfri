@@ -9,14 +9,11 @@
       url = "github:ipetkov/crane";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    rambo_bin = {
-      url = "github:munksgaard/rambo/flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
-  outputs = inputs@{ flake-parts, ... }:
-    flake-parts.lib.mkFlake { inherit inputs; } {
+  outputs = inputs@{ self, flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; }
+    ({ moduleWithSystem, withSystem, ... }: {
       imports = [ inputs.devshell.flakeModule ];
       systems =
         [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
@@ -38,9 +35,9 @@
           mixFodDeps = pkgs.beamPackages.fetchMixDeps {
             pname = "${pname}-deps";
             inherit src version;
-            hash = "sha256-BlaRPKbd9otMiOMjL6HYnLRknHNaVXW4C2YFOr2FJHM=";
+            hash = "sha256-4XKKYNu+ZemIkPyH81QD+XOOcMiSeqWL6ejwdr1/LZQ=";
           };
-          elixir = builtins.trace "mixFodDeps: ${mixFodDeps}" beam_pkgs.elixir_1_16;
+          elixir = beam_pkgs.elixir_1_16;
           sorgenfri = beam_pkgs.mixRelease {
             inherit src pname version mixFodDeps elixir;
 
@@ -49,8 +46,6 @@
             ELIXIR_MAKE_CACHE_DIR = "/tmp/";
 
             PRECOMPILED_NIF = true;
-
-            RAMBO_PATH = "${inputs.rambo_bin}/bin/rambo";
 
             preBuild = ''
               mkdir -p priv/native
@@ -115,7 +110,8 @@
           packages.default = self'.packages.sorgenfri;
         };
       flake = {
-        nixosModules.sorgenfri = { options, config, pkgs, lib, ... }:
+        nixosModules.sorgenfri = moduleWithSystem (perSystem@{ config }:
+          nixos@{ config, options, pkgs, packages, lib, ... }:
           with lib;
           let
             name = "sorgenfri";
@@ -125,24 +121,26 @@
             options.services.sorgenfri = {
               enable = mkEnableOption "Enables the Sorgenfri service.";
 
-              uploadsDir = mkOption {
+              package = mkPackageOption packages "sorgenfri" { };
+
+              uploadDir = mkOption {
                 type = types.path;
                 example = lib.literalExpression "/var/lib/sorgenfri/uploads";
-                default = /var/lib/sorgenfri/uploads;
+                default = "/var/lib/sorgenfri/uploads";
                 description = "Where to save uploads.";
               };
 
               databasePath = mkOption {
                 type = types.path;
                 example = lib.literalExpression "/var/lib/sorgenfri/db.sqlite";
-                default = /var/lib/sorgenfri/db.sqlite;
+                default = "/var/lib/sorgenfri/db.sqlite";
                 description = "Where to store the SQLite database.";
               };
 
               releaseTmp = mkOption {
                 type = types.path;
-                example = lib.literalExpression "/run/leaf";
-                default = /run/leaf;
+                example = lib.literalExpression "/run/sorgenfri";
+                default = "/run/sorgenfri/tmp";
                 description = ''
 
                   The value of the RELEASE_TMP environment variable,
@@ -152,11 +150,9 @@
                 '';
               };
 
-              releaseCookie = mkOption {
-                type = types.str;
-                example = "my_cookie";
-                description =
-                  "The value of the RELEASE_COOKIE environment variable.";
+              secretKeyBaseFile = mkOption {
+                type = types.path;
+                description = "File containing the secret key base.";
               };
 
               address = mkOption {
@@ -172,18 +168,10 @@
               };
 
               smtp = {
-                password = mkOption {
-                  type = types.str;
-                  default = "";
-                  description =
-                    "SMTP password. Exactly one of password and passwordFile must be set.";
-                };
-
                 passwordFile = mkOption {
                   type = types.nullOr types.path;
                   default = null;
-                  description =
-                    "A file containing the SMTP password. Exactly one of password and passwordFile must be set.";
+                  description = "A file containing the SMTP password.";
                 };
 
                 username = mkOption {
@@ -204,14 +192,9 @@
               };
             };
 
-            config = mkIf cfg.enable {
-              assertions = [{
-                assertion = cfg.smtp.password != opt.smtp.password.default
-                  -> cfg.smtp.passwordFile == null;
-                message =
-                  "Exactly one of password and passwordFile must be set";
-              }];
+            # (Temporarily) add container to test module
 
+            config = mkIf cfg.enable {
               systemd.services.sorgenfri = {
                 description = "Sorgenfri Server";
                 wantedBy = [ "multi-user.target" ];
@@ -224,39 +207,76 @@
                 environment = {
                   PHX_SERVER = "true";
                   PHX_HOST = "${cfg.address}";
+                  PHX_PORT = toString cfg.port;
+                  RELEASE_DISTRIBUTION = "none";
+                  ERL_EPMD_ADDRESS = "127.0.0.1";
+                  RELEASE_TMP = cfg.releaseTmp;
+                  DATABASE_PATH = cfg.databasePath;
+                  SMTP_USERNAME = cfg.smtp.username;
+                  SMTP_PORT = toString cfg.smtp.port;
+                  SMTP_HOST = cfg.smtp.host;
+                  UPLOAD_DIR = cfg.uploadDir;
                 };
 
                 serviceConfig = {
-                  type = "notify";
+                  Type = "notify";
                   DynamicUser = true;
                   WorkingDirectory = "/run/sorgenfri";
                   StateDirectory = "sorgenfri";
                   RuntimeDirectory = "sorgenfri";
                   # Implied by DynamicUser, but just to emphasize due to RELEASE_TMP
                   PrivateTmp = true;
-                  ExecStart = ''
-                    ${leaf}/bin/${name} start
-                  '';
+                  ExecStart = "${cfg.package}/bin/${name} start";
                   ExecReload = ''
-                    ${leaf}/bin/${name} restart
+                    ${cfg.package}/bin/${name} restart
                   '';
                   Restart = "on-failure";
                   RestartSec = 5;
                   LoadCredential = [
-                    "smtp_password_file:${config.age.secrets.smtp_password.path}"
-                    "secret_key_base:${config.age.secrets.secret_key_base.path}"
-                    "database_url:${config.age.secrets.database_url.path}"
+                    "SECRET_KEY_BASE:${cfg.secretKeyBaseFile}"
+                    "SMTP_PASSWORD:${cfg.smtp.passwordFile}"
                   ];
                   WatchdogSec = "10s";
                   KillMode = "mixed";
                 };
                 # disksup requires bash
-                path = [ pkgs.bash pkgs.gawk pkgs.typst ];
+                path = [ pkgs.bash pkgs.gawk pkgs.ffmpeg pkgs.imagemagick ];
 
               };
 
             };
-          };
+          });
+
+        nixosConfigurations.test = withSystem "x86_64-linux"
+          (ctx@{ config, inputs', ... }:
+            inputs.nixpkgs.lib.nixosSystem {
+              system = "x86_64-linux";
+              # Expose `packages`, `inputs` and `inputs'` as module arguments.
+              # Use specialArgs permits use in `imports`.
+              # Note: if you publish modules for reuse, do not rely on specialArgs, but
+              # on the flake scope instead. See also https://flake.parts/define-module-in-separate-file.html
+              specialArgs = {
+                packages = config.packages;
+                inherit inputs inputs';
+              };
+              modules = [
+                self.nixosModules.sorgenfri
+                {
+                  system.stateVersion = "23.11";
+
+                  boot.isContainer = true;
+                  networking.useDHCP = false;
+                  networking.firewall.allowedTCPPorts = [ 4000 ];
+                  networking.hostName = "sorgenfri-test";
+
+                  environment.systemPackages = [ config.packages.sorgenfri ];
+
+                  services.sorgenfri = {
+                    enable = true;
+                  };
+                }
+              ];
+            });
       };
-    };
+    });
 }
