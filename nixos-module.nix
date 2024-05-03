@@ -115,7 +115,6 @@ in {
         RuntimeDirectory = "sorgenfri";
         # Implied by DynamicUser, but just to emphasize due to RELEASE_TMP
         PrivateTmp = true;
-        ExecStart = "${cfg.package}/bin/${name} start";
         ExecReload = ''
           ${cfg.package}/bin/${name} restart
         '';
@@ -130,6 +129,11 @@ in {
       };
       # disksup requires bash
       path = [ pkgs.bash pkgs.gawk pkgs.ffmpeg pkgs.imagemagick ];
+
+      script = ''
+        export RELEASE_COOKIE=$(tr -dc A-Za-z0-9 < /dev/urandom | head -c 20)
+        exec ${cfg.package}/bin/${name} start;
+      '';
 
     };
 
