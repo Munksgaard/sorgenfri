@@ -144,8 +144,9 @@ defmodule SorgenfriWeb.HomeLive do
     extension =
       entry.client_name
       |> Path.extname()
+      |> String.replace_prefix(".", "")
 
-    dest = Path.join(dest_dir, "original#{extension}")
+    dest = Path.join(dest_dir, "original.#{extension}")
 
     changeset =
       Assets.change_asset(

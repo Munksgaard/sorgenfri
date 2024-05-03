@@ -28,12 +28,12 @@ defmodule SorgenfriWeb.ViewLive do
       <figure>
         <img
           :if={@asset.kind == :image}
-          src={~p"/uploads/#{@asset.hash}/original#{@asset.extension}"}
+          src={~p"/uploads/#{@asset.hash}/original.#{@asset.extension}"}
         />
         <video
           :if={@asset.kind == :video}
           controls
-          src={~p"/uploads/#{@asset.hash}/original#{@asset.extension}"}
+          src={~p"/uploads/#{@asset.hash}/original.#{@asset.extension}"}
         >
         </video>
         <figcaption>
