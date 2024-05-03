@@ -42,7 +42,7 @@ if config_env() == :prod do
   # to check this value into version control, so we use an environment
   # variable instead.
   secret_key_base =
-    System.get_env("SECRET_KEY_BASE") ||
+    Sorgenfri.Util.get_secret("SECRET_KEY_BASE") ||
       raise """
       environment variable SECRET_KEY_BASE is missing.
       You can generate one by calling: mix phx.gen.secret
@@ -103,20 +103,20 @@ if config_env() == :prod do
   #
 
   smtp_username =
-    Leaf.Util.get_secret("SMTP_USERNAME") ||
+    Sorgenfri.Util.get_secret("SMTP_USERNAME") ||
       raise "environment variable SMTP_USERNAME is missing."
 
   smtp_password =
-    Leaf.Util.get_secret("SMTP_PASSWORD") ||
+    Sorgenfri.Util.get_secret("SMTP_PASSWORD") ||
       raise "environment variable SMTP_PASSWORD is missing."
 
   smtp_host =
-    Leaf.Util.get_secret("SMTP_HOST") ||
+    Sorgenfri.Util.get_secret("SMTP_HOST") ||
       raise "environment variable SMTP_HOST is missing."
 
   smtp_port =
     String.to_integer(
-      Leaf.Util.get_secret("SMTP_PORT") ||
+      Sorgenfri.Util.get_secret("SMTP_PORT") ||
         raise("environment variable SMTP_PORT is missing.")
     )
 
