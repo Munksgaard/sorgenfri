@@ -14,7 +14,7 @@ defmodule Sorgenfri.Accounts.Account do
     field :new_comment_notification, :boolean
     field :new_asset_notification, :boolean
     field :reset_token, :string
-    field :reset_expiration, :utc_datetime
+    field :reset_expiration, :integer
     field :date, :integer
 
     belongs_to :user, Sorgenfri.Accounts.User
