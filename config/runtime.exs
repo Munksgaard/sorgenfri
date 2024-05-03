@@ -127,7 +127,7 @@ if config_env() == :prod do
     password: smtp_password,
     ssl: true,
     port: smtp_port,
-    retries: 2,
+    retries: 2
 
   #     config :swoosh, :api_client, Swoosh.ApiClient.Hackney
   #
