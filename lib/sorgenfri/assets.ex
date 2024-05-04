@@ -131,7 +131,7 @@ defmodule Sorgenfri.Assets do
       from a in Asset,
         where: a.date > fragment("unixepoch(?)", from_now(-1, "day"))
 
-    Repo.exists?(dbg(query))
+    Repo.exists?(query)
   end
 
   def create_thumbnail(:video, source, destination) do

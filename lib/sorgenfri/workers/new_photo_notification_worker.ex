@@ -13,8 +13,8 @@ defmodule Sorgenfri.Workers.NewPhotoNotification do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    if Assets.new_updates_last_day?() |> dbg do
-      accounts = Accounts.new_asset_notification_receivers() |> Repo.preload(:user) |> dbg
+    if Assets.new_updates_last_day?() do
+      accounts = Accounts.new_asset_notification_receivers() |> Repo.preload(:user)
 
       for account <- accounts do
         try do
