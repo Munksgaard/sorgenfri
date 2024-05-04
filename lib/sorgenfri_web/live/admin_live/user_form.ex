@@ -49,7 +49,7 @@ defmodule SorgenfriWeb.Admin.User.FormComponent do
       </.button>
 
       <.button
-        :if={Accounts.admin?(@user) and @user != @current_user}
+        :if={Accounts.admin?(@user) && @user != @current_user}
         phx-click="unmake-admin"
         phx-target={@myself}
       >
