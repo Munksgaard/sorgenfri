@@ -252,7 +252,13 @@ defmodule Sorgenfri.Accounts do
 
   def delete(%User{} = user) do
     Multi.new()
-    |> Multi.delete(:account, user.account)
+    |> fn m ->
+      if user.account do
+        Multi.delete(multi, :account, user.account)
+      else
+        multi
+      end
+    end
     |> Multi.delete(:user, user)
     |> Repo.transaction()
   end
