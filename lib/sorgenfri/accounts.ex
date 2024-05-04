@@ -241,8 +241,9 @@ defmodule Sorgenfri.Accounts do
   end
 
   def admin?(%User{} = user) do
-    Repo.preload(user, :account).account
-    |> admin?()
+    user = Repo.preload(user, :account)
+
+    user.account && admin?(user.account)
   end
 
   def accept(%Account{} = account) do

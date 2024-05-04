@@ -18,17 +18,21 @@ defmodule SorgenfriWeb.Admin.User.FormComponent do
       <.list>
         <:item title="ID"><%= @user.id %></:item>
         <:item title="Navn"><%= @user.name %></:item>
-        <:item title="Email"><%= @user.account.email %></:item>
+        <:item title="Email"><%= if(@user.account, do: @user.account.email) %></:item>
         <:item title="Navn"><%= @user.name %></:item>
-        <:item title="Accepted?"><%= @user.account.accepted %></:item>
-        <:item title="Role"><%= @user.account.role %></:item>
+        <:item title="Accepted?"><%= if(@user.account, do: @user.account.accepted) %></:item>
+        <:item title="Role"><%= if(@user.account, do: @user.account.role) %></:item>
       </.list>
 
       <hr class="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
 
       <.header>Handlinger</.header>
 
-      <.button :if={not @user.account.accepted} phx-click="accept" phx-target={@myself}>
+      <.button
+        :if={@user.account && not @user.account.accepted}
+        phx-click="accept"
+        phx-target={@myself}
+      >
         Acceptér
       </.button>
 
@@ -36,7 +40,11 @@ defmodule SorgenfriWeb.Admin.User.FormComponent do
         Slet
       </.button>
 
-      <.button :if={not Accounts.admin?(@user)} phx-click="make-admin" phx-target={@myself}>
+      <.button
+        :if={@user.account && not Accounts.admin?(@user)}
+        phx-click="make-admin"
+        phx-target={@myself}
+      >
         Gør til administrator
       </.button>
 
