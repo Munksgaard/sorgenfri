@@ -8,7 +8,7 @@ defmodule Sorgenfri.Accounts.AccountNotifier do
     email =
       new()
       |> to(recipient)
-      |> from({"Sorgenfri", "contact@example.com"})
+      |> from({"Ebbes Fotoalbum", "fotoalbum@munksgaard.me"})
       |> subject(subject)
       |> text_body(body)
 
