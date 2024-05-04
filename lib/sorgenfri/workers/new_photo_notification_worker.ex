@@ -17,13 +17,19 @@ defmodule Sorgenfri.Workers.NewPhotoNotification do
       accounts = Accounts.new_asset_notification_receivers() |> Repo.preload(:user) |> dbg
 
       for account <- accounts do
-        case Accounts.AccountNotifier.deliver_new_photo_notification(account) |> dbg do
-          {:ok, _} ->
-            :ok
+        try do
+          case Accounts.AccountNotifier.deliver_new_photo_notification(account) do
+            {:ok, _} ->
+              :ok
 
-          {:error, e} ->
-            Logger.notice(%{type: :new_photo_noficiation_failed, error: e})
-            {:ok, _} = Accounts.disable_email_notifications(account)
+            {:error, e} ->
+              Logger.notice(%{type: :new_photo_noficiation_failed, error: e})
+              {:ok, _} = Accounts.disable_email_notifications(account)
+          end
+        rescue
+          e ->
+            Logger.error(Exception.format(:error, e, __STACKTRACE__))
+            :ok
         end
       end
 
